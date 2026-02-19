@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Magnify Scanner</title>
+<style>
+body{background:#0b0f16;color:#e8f0ff;font-family:Arial;margin:0;padding:0}
+.header{padding:12px;background:#111827;border-bottom:1px solid #1f2937}
+h1{margin:0;font-size:18px;color:#00ff88}
+.container{padding:12px}
+input,button{padding:10px;font-size:14px;border-radius:6px;border:none}
+input{width:65%;background:#1f2937;color:white}
+button{background:#00ff88;color:black;font-weight:bold}
+.card{margin-top:15px;padding:12px;background:#111827;border-radius:8px}
+.row{display:flex;justify-content:space-between;margin:6px 0}
+.green{color:#00ff88}
+.red{color:#ff4d6d}
+.yellow{color:#fbbf24}
+.small{font-size:12px;color:#9ca3af}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>MAGNIFY SCANNER</h1>
+</div>
+
+<div class="container">
+<input id="ticker" placeholder="AAPL, SHOP.TO, BHP.AX">
+<button onclick="scan()">SCAN</button>
+
+<div id="output"></div>
+</div>
+
+<script>
+
+const PROXY = url =>
+  "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+
+function fmt(n){
+  if(n==null) return "N/A";
+  if(n<1) return "$"+n.toFixed(4);
+  return "$"+n.toFixed(2);
+}
+
+async function scan(){
+  const sym = document.getElementById("ticker").value.trim().toUpperCase();
+  if(!sym) return;
+
+  const out = document.getElementById("output");
+  out.innerHTML = "<div class='card'>Loading...</div>";
+
+  try{
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${sym}`;
+    const res = await fetch(PROXY(url));
+    const data = await res.json();
+    const q = data.quoteResponse.result[0];
+
+    if(!q){
+      out.innerHTML = "<div class='card red'>Ticker not found.</div>";
+      return;
+    }
+
+    const price = q.regularMarketPrice;
+    const prev = q.regularMarketPreviousClose;
+    const volume = q.regularMarketVolume || 0;
+    const avgVol = q.averageDailyVolume3Month || 1;
+    const mcap = q.marketCap;
+
+    const change = ((price-prev)/prev*100);
+    const volRatio = volume/avgVol;
+    const dollarVol = price*volume;
+    const mcapB = mcap ? mcap/1e9 : null;
+
+    // FILTERS
+    const priceOK = price>=0.2 && price<=50;
+    const mcapOK = !mcapB || mcapB<=5;
+    const liquid = dollarVol>=250000;
+
+    // SCORE
+    let score = 0;
+
+    if(volRatio>=3) score+=30;
+    if(change>=5) score+=20;
+    if(dollarVol>=1000000) score+=20;
+    if(priceOK) score+=15;
+    if(mcapOK) score+=15;
+
+    let status="REJECT";
+    if(score>=80) status="HIGH CONVICTION";
+    else if(score>=60) status="WATCH";
+
+    // RULEBOOK
+    let plan="AVOID";
+    let stop="—";
+    let target="—";
+
+    if(status==="HIGH CONVICTION"){
+      plan="Breakout above HOD on volume";
+      stop="Below day low or -8%";
+      target="+15% to +25%";
+    } else if(status==="WATCH"){
+      plan="Wait for vol ≥3x and resistance break";
+      stop="Below VWAP / day low";
+      target="+10%";
+    }
+
+    out.innerHTML = `
+    <div class="card">
+      <div class="row"><div>Price</div><div>${fmt(price)}</div></div>
+      <div class="row"><div>Change</div><div class="${change>0?'green':'red'}">${change.toFixed(2)}%</div></div>
+      <div class="row"><div>Vol Ratio</div><div>${volRatio.toFixed(2)}x</div></div>
+      <div class="row"><div>Dollar Vol</div><div>$${(dollarVol/1000000).toFixed(2)}M</div></div>
+      <div class="row"><div>Market Cap</div><div>${mcapB?mcapB.toFixed(2)+"B":"N/A"}</div></div>
+      <hr>
+      <div class="row"><div><b>Score</b></div><div><b>${score}/100</b></div></div>
+      <div class="row"><div><b>Status</b></div><div class="${status==='HIGH CONVICTION'?'green':status==='WATCH'?'yellow':'red'}"><b>${status}</b></div></div>
+    </div>
+
+    <div class="card">
+      <b>Trading Plan</b>
+      <div class="small">Entry:</div>
+      <div>${plan}</div>
+      <div class="small">Stop:</div>
+      <div>${stop}</div>
+      <div class="small">Target:</div>
+      <div>${target}</div>
+      <div class="small" style="margin-top:8px">
+      Risk 0.5–1% per trade. Position size = (Account × Risk%) / (Entry − Stop).
+      </div>
+    </div>
+    `;
+
+  }catch(e){
+    out.innerHTML = "<div class='card red'>Network error. Try again.</div>";
+  }
+}
+
+</script>
+</body>
+</html>
