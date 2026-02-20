@@ -2,397 +2,681 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>Magnify Scanner (Stable)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Magnify Scanner (Proxy Stable)</title>
   <style>
     :root{
-      --bg:#060915;--panel:#0c1224;--card:#0f1933;--edge:#1c2b4a;
-      --txt:#e8f0ff;--mut:#8aa1c7;--bad:#ff3b6b;--ok:#00ff88;--warn:#ffbf3b;--info:#5aa2ff;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --r:12px;
+      --bg:#060915; --panel:#0c1224; --panel2:#0a1020;
+      --txt:#e8f0ff; --mut:#8aa1c7; --mut2:#5f7396;
+      --green:#2cff88; --green2:#00d26a; --red:#ff4d6d; --amber:#ffcc66;
+      --stroke:#1b2a4a;
+      --r:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .top{position:sticky;top:0;z-index:20;background:rgba(6,9,21,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--edge);padding:12px}
-    .title{font-weight:800;letter-spacing:.06em;color:var(--ok);font-size:16px}
-    .sub{color:var(--mut);font-family:var(--mono);font-size:11px;margin-top:2px}
-    .wrap{max-width:520px;margin:0 auto}
-    .row{display:flex;gap:8px;margin-top:10px}
-    input,select,button{border-radius:10px;border:1px solid var(--edge);background:var(--panel);color:var(--txt);padding:10px 12px;font-size:14px}
-    input{flex:1;font-family:var(--mono);text-transform:uppercase}
-    select{width:120px}
-    button{background:var(--ok);border:none;color:#00140a;font-weight:900;letter-spacing:.06em}
-    button:active{transform:scale(.98)}
-    .grid{display:grid;gap:10px;padding:12px}
-    .card{background:var(--card);border:1px solid var(--edge);border-radius:var(--r);padding:12px}
-    .kvs{display:grid;grid-template-columns:1fr auto;gap:8px 10px;font-family:var(--mono);font-size:12px}
-    .lbl{color:var(--mut)}
-    .val{font-weight:700}
-    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);background:rgba(255,255,255,.03);
-      border-radius:999px;padding:6px 10px;font-family:var(--mono);font-size:11px;margin:6px 6px 0 0}
-    .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)} .info{color:var(--info)}
-    .hr{height:1px;background:var(--edge);margin:10px 0}
-    .small{color:var(--mut);font-size:12px;line-height:1.5}
-    .errbox{white-space:pre-wrap;font-family:var(--mono);font-size:11px;color:#ffd2dc;background:rgba(255,59,107,.08);
-      border:1px solid rgba(255,59,107,.3);border-radius:10px;padding:10px}
-    .footer{padding:14px 12px;color:var(--mut);font-size:11px;text-align:center}
-    a{color:var(--info);text-decoration:none}
+    body{margin:0;background:radial-gradient(1200px 800px at 30% -10%, #11204a 0%, rgba(6,9,21,0) 60%), var(--bg); color:var(--txt); font-family:var(--sans);}
+    a{color:var(--mut); text-decoration:none}
+    .wrap{max-width:980px;margin:0 auto;padding:18px 14px 36px}
+    .top{
+      position:sticky; top:0; z-index:9;
+      backdrop-filter: blur(10px);
+      background:linear-gradient(to bottom, rgba(6,9,21,.92), rgba(6,9,21,.55));
+      border-bottom:1px solid rgba(27,42,74,.6);
+      padding:14px 0 12px;
+      margin:-18px -14px 14px;
+    }
+    .top .inner{max-width:980px;margin:0 auto;padding:0 14px}
+    .brand{font-weight:900; letter-spacing:.06em; color:var(--green); font-size:22px}
+    .sub{color:var(--mut); font-size:13px; margin-top:4px; line-height:1.2}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px}
+    .input{
+      flex:1 1 240px;
+      display:flex; align-items:center;
+      border:1px solid rgba(27,42,74,.85);
+      background:linear-gradient(180deg, rgba(12,18,36,.9), rgba(10,16,32,.9));
+      border-radius:18px; padding:10px 12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .input input{
+      width:100%; border:0; outline:0; background:transparent;
+      color:var(--txt); font-size:18px; letter-spacing:.02em;
+    }
+    .pill{
+      border:1px solid rgba(27,42,74,.85);
+      background:linear-gradient(180deg, rgba(12,18,36,.9), rgba(10,16,32,.9));
+      border-radius:16px; padding:10px 10px;
+      color:var(--txt);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    select{
+      border:0; outline:0; background:transparent; color:var(--txt);
+      font-size:14px;
+    }
+    .btn{
+      border:0; border-radius:18px;
+      padding:12px 16px;
+      background:linear-gradient(180deg, var(--green), var(--green2));
+      font-weight:900; letter-spacing:.06em;
+      color:#061116; font-size:14px;
+      box-shadow:0 12px 30px rgba(0,210,106,.25);
+      cursor:pointer;
+    }
+    .btn:active{transform:translateY(1px)}
+    .hint{color:var(--mut2); font-size:12px; margin-top:8px}
+    .grid{display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px}
+    @media(min-width:820px){ .grid{grid-template-columns: 1.2fr .8fr} }
+    .card{
+      border:1px solid rgba(27,42,74,.75);
+      background:linear-gradient(180deg, rgba(12,18,36,.85), rgba(10,16,32,.85));
+      border-radius:var(--r);
+      padding:14px;
+      box-shadow:0 18px 50px rgba(0,0,0,.25);
+    }
+    .card h3{margin:0 0 8px; font-size:14px; color:var(--mut); letter-spacing:.08em; text-transform:uppercase}
+    .big{
+      font-size:36px; font-weight:900; letter-spacing:.02em; margin:0;
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(27,42,74,.9);
+      background:rgba(5,10,20,.6);
+      font-size:12px; color:var(--mut);
+    }
+    .ok{color:var(--green)}
+    .bad{color:var(--red)}
+    .warn{color:var(--amber)}
+    .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+    .kv .box{
+      border:1px solid rgba(27,42,74,.7);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(6,9,21,.35);
+    }
+    .k{color:var(--mut2); font-size:11px; letter-spacing:.08em; text-transform:uppercase}
+    .v{font-family:var(--mono); margin-top:6px; font-size:13px}
+    .tabs{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+    .tab{
+      border:1px solid rgba(27,42,74,.8);
+      background:rgba(6,9,21,.25);
+      color:var(--mut);
+      padding:8px 10px; border-radius:999px;
+      font-size:12px; cursor:pointer;
+    }
+    .tab.active{color:var(--txt); border-color:rgba(44,255,136,.55); background:rgba(0,210,106,.08)}
+    .panel{margin-top:10px; border:1px solid rgba(27,42,74,.7); border-radius:14px; padding:12px; background:rgba(6,9,21,.25)}
+    .mono{font-family:var(--mono); font-size:12px; color:var(--mut)}
+    .hr{height:1px;background:rgba(27,42,74,.7); margin:10px 0}
+    .list{margin:0; padding-left:18px; color:var(--mut); line-height:1.45}
+    .statusline{font-family:var(--mono); font-size:12px; color:var(--mut2); white-space:pre-wrap}
+    .footer{margin-top:14px; color:var(--mut2); font-size:12px}
+    .errorBox{border:1px solid rgba(255,77,109,.5); background:rgba(255,77,109,.08); color:#ffd1d9; padding:10px; border-radius:14px; font-family:var(--mono); font-size:12px; white-space:pre-wrap}
   </style>
 </head>
-<body>
-  <div class="top">
-    <div class="wrap">
-      <div class="title">MAGNIFY SCANNER</div>
-      <div class="sub">Stable GitHub Pages build • Multi-proxy Yahoo fetch • Intl suffix auto-try</div>
-      <div class="row">
-        <input id="ticker" placeholder="Try: AAPL, SHOP.TO, BHP.AX, SAP.DE, VOD.L" maxlength="16" />
-        <select id="region">
-          <option value="auto" selected>AUTO</option>
-          <option value="us">US</option>
-          <option value="ca">CA</option>
-          <option value="au">AU</option>
-          <option value="eu">EU</option>
-        </select>
-        <button id="scanBtn">SCAN</button>
-      </div>
-      <div class="small" style="margin-top:8px">
-        Tip: Intl stocks often need suffix. This app will auto-try common ones if you choose CA/AU/EU or AUTO.
-      </div>
-    </div>
-  </div>
 
+<body>
   <div class="wrap">
-    <div class="grid" id="out">
-      <div class="card">
-        <div class="small">Enter a ticker and tap <b>SCAN</b>. If something fails, you’ll see the exact reason here (not a white page).</div>
+    <div class="top">
+      <div class="inner">
+        <div class="brand">MAGNIFY SCANNER</div>
+        <div class="sub">Stable build • Cloudflare proxy • US full / Intl LIMITED • score + rulebook</div>
+
+        <div class="row">
+          <div class="input">
+            <input id="ticker" value="AMD" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ticker (e.g. RIME, GAMB, SHOP.TO, BHP.AX)">
+          </div>
+
+          <div class="pill">
+            <select id="market">
+              <option value="AUTO">AUTO (try suffixes)</option>
+              <option value="US">US</option>
+              <option value="CA">Canada (.TO/.V)</option>
+              <option value="AU">Australia (.AX)</option>
+              <option value="EU">Europe (varies)</option>
+            </select>
+          </div>
+
+          <button class="btn" id="scanBtn">SCAN</button>
+        </div>
+
+        <div class="hint">
+          Tip: Intl stocks often need suffix. With AUTO, app tries common variants. If your data plan can’t fetch candles for intl, it switches to LIMITED (quote-only scoring).
+        </div>
       </div>
     </div>
-    <div class="footer">
-      Educational only. High-risk markets. Data via Yahoo endpoints through public proxies.
+
+    <div class="grid">
+      <div class="card">
+        <h3>Result</h3>
+        <div class="big">
+          <span id="sym">—</span>
+          <span class="badge" id="modeBadge">MODE: —</span>
+          <span class="badge" id="scoreBadge">SCORE: —</span>
+          <span class="badge" id="signalBadge">SIGNAL: —</span>
+        </div>
+
+        <div class="kv">
+          <div class="box"><div class="k">Price</div><div class="v" id="price">—</div></div>
+          <div class="box"><div class="k">Change</div><div class="v" id="chg">—</div></div>
+          <div class="box"><div class="k">Volume</div><div class="v" id="vol">—</div></div>
+          <div class="box"><div class="k">Prev Close</div><div class="v" id="prev">—</div></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="score">SCORE</div>
+          <div class="tab" data-tab="signals">SIGNALS</div>
+          <div class="tab" data-tab="wt">WT CHECK</div>
+          <div class="tab" data-tab="plan">PLAN</div>
+          <div class="tab" data-tab="debug">DEBUG</div>
+        </div>
+
+        <div class="panel" id="panelScore"></div>
+        <div class="panel" id="panelSignals" style="display:none"></div>
+        <div class="panel" id="panelWT" style="display:none"></div>
+        <div class="panel" id="panelPlan" style="display:none"></div>
+        <div class="panel" id="panelDebug" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <h3>Status</h3>
+        <div class="statusline" id="status">Ready.</div>
+        <div class="hr"></div>
+        <div class="mono">
+          Proxy: <span id="proxyUrl"></span><br/>
+          Educational only. Not financial advice. High-risk markets.
+        </div>
+        <div class="footer">
+          If you get nothing: open browser menu → “Desktop site” off/on, refresh, or clear site data.
+        </div>
+        <div id="err" style="display:none;margin-top:12px" class="errorBox"></div>
+      </div>
     </div>
   </div>
 
 <script>
-(() => {
-  const $ = (id)=>document.getElementById(id);
-  const out = $("out");
-  const scanBtn = $("scanBtn");
-  const inp = $("ticker");
-  const regionSel = $("region");
+/** ===========================
+ *  CONFIG
+ *  =========================== */
+const PROXY_BASE = "https://magnify-proxy.orglatfood.workers.dev"; // <-- your Cloudflare Worker
+document.getElementById("proxyUrl").textContent = PROXY_BASE;
 
-  // ===== Proxy fallbacks =====
-  // Direct Yahoo calls are usually blocked by CORS on GitHub Pages.
-  // So we try multiple public "fetch-any-url" proxies.
-  const PROXIES = [
-    (url)=>"https://api.allorigins.win/raw?url="+encodeURIComponent(url),
-    (url)=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url),
-    (url)=>"https://r.jina.ai/http://"+url.replace(/^https?:\/\//,''),
-  ];
+/** ===========================
+ *  UI HELPERS
+ *  =========================== */
+const el = (id)=>document.getElementById(id);
+const setStatus = (t)=> el("status").textContent = t;
+const showErr = (t)=>{ el("err").style.display = "block"; el("err").textContent = t; };
+const clearErr = ()=>{ el("err").style.display = "none"; el("err").textContent = ""; };
 
-  function money(n){
-    if(n==null || isNaN(n)) return "N/A";
-    const abs=Math.abs(n);
-    if(abs>=1e12) return (n/1e12).toFixed(2)+"T";
-    if(abs>=1e9) return (n/1e9).toFixed(2)+"B";
-    if(abs>=1e6) return (n/1e6).toFixed(2)+"M";
-    if(abs>=1e3) return (n/1e3).toFixed(2)+"K";
-    return String(n);
+function badge(elm, text, cls){
+  elm.textContent = text;
+  elm.classList.remove("ok","bad","warn");
+  if (cls) elm.classList.add(cls);
+}
+
+function fmtNum(n){
+  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  const a = Math.abs(n);
+  if (a >= 1e9) return (n/1e9).toFixed(2)+"B";
+  if (a >= 1e6) return (n/1e6).toFixed(2)+"M";
+  if (a >= 1e3) return (n/1e3).toFixed(2)+"K";
+  return String(n);
+}
+function fmtPx(n){
+  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  return Number(n).toFixed(2);
+}
+function pct(n){
+  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  return (n*100).toFixed(2)+"%";
+}
+
+function switchTab(name){
+  const tabs = document.querySelectorAll(".tab");
+  tabs.forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+  ["Score","Signals","WT","Plan","Debug"].forEach(key=>{
+    el("panel"+key).style.display = (name.toLowerCase()===key.toLowerCase()) ? "block" : "none";
+  });
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click", ()=>switchTab(t.dataset.tab)));
+
+/** ===========================
+ *  API (via Cloudflare Worker)
+ *  =========================== */
+async function apiQuote(symbol){
+  const r = await fetch(`${PROXY_BASE}/api/quote?symbol=${encodeURIComponent(symbol)}`, { cache: "no-store" });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "Quote failed");
+  return j.quote;
+}
+
+async function apiChart(symbol){
+  const r = await fetch(`${PROXY_BASE}/api/chart?symbol=${encodeURIComponent(symbol)}&interval=1day&outputsize=200`, { cache: "no-store" });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "Chart failed");
+  return j; // { ok, symbol, interval, limited, candles:[...] }
+}
+
+/** ===========================
+ *  SYMBOL NORMALIZATION
+ *  =========================== */
+function normalizeInput(s){
+  return (s||"").trim().toUpperCase().replace(/\s+/g,"");
+}
+
+function expandAuto(symbol, market){
+  // Returns an ordered list of candidates to try
+  // IMPORTANT: With your current plan, intl may be LIMITED or unavailable. We still try.
+  const base = symbol;
+  const out = [];
+  const hasSuffix = base.includes(".");
+  if (market === "US") return [base];
+  if (market === "CA") {
+    if (hasSuffix) return [base];
+    return [base+".TO", base+".V", base];
   }
-  function priceFmt(p){
-    if(p==null || isNaN(p)) return "N/A";
-    if(p<1) return "$"+p.toFixed(4);
-    if(p<10) return "$"+p.toFixed(3);
-    return "$"+p.toFixed(2);
+  if (market === "AU") {
+    if (hasSuffix) return [base];
+    return [base+".AX", base];
+  }
+  if (market === "EU") {
+    // Too many EU suffixes; try as-is first, then common ones used by Yahoo
+    if (hasSuffix) return [base];
+    return [base, base+".DE", base+".F", base+".PA", base+".AS", base+".MI", base+".L", base+".SW"];
+  }
+  // AUTO
+  if (hasSuffix) return [base];
+  out.push(base);                // US
+  out.push(base+".TO", base+".V"); // Canada
+  out.push(base+".AX");          // Australia
+  out.push(base+".L", base+".DE", base+".PA", base+".AS", base+".MI", base+".SW", base+".F"); // Europe common
+  return out;
+}
+
+/** ===========================
+ *  SCORING + RULEBOOK
+ *  - Works with FULL (candles) or LIMITED (quote only)
+ *  =========================== */
+
+// Technical helpers
+function sma(values, len){
+  if (!values || values.length < len) return null;
+  let sum=0;
+  for (let i=values.length-len;i<values.length;i++) sum+=values[i];
+  return sum/len;
+}
+
+function atrFromCandles(candles, len=14){
+  // candles: [{o,h,l,c,v,t}]
+  if (!candles || candles.length < len+1) return null;
+  const trs = [];
+  for (let i=1;i<candles.length;i++){
+    const c0 = candles[i-1];
+    const c1 = candles[i];
+    const tr = Math.max(
+      c1.h - c1.l,
+      Math.abs(c1.h - c0.c),
+      Math.abs(c1.l - c0.c)
+    );
+    trs.push(tr);
+  }
+  if (trs.length < len) return null;
+  const recent = trs.slice(-len);
+  const avg = recent.reduce((a,b)=>a+b,0)/len;
+  return avg;
+}
+
+function computeScore(quote, chartObj){
+  // Output: {score, mode, signal, parts, plan}
+  const price = Number(quote?.price);
+  const prevClose = Number(quote?.previousClose);
+  const chg = (price && prevClose) ? (price/prevClose - 1) : null;
+  const vol = Number(quote?.volume ?? NaN);
+
+  // Guards
+  const inRange = (price >= 0.2 && price <= 50);
+  const mode = chartObj?.limited ? "LIMITED" : "FULL";
+
+  let score = 0;
+  const parts = [];
+
+  // 1) Price range filter (hard requirement)
+  if (!inRange){
+    parts.push({k:"Price range ($0.20–$50)", v:"FAIL", w:-40});
+    score -= 40;
+  } else {
+    parts.push({k:"Price range ($0.20–$50)", v:"PASS", w:+10});
+    score += 10;
   }
 
-  function card(html){ return `<div class="card">${html}</div>`; }
-  function pill(text, cls){ return `<span class="pill ${cls||''}">${text}</span>`; }
+  // 2) Liquidity (quote-based)
+  // crude: prefer > 300k daily volume for “tradable”; microcaps can be lower, but edge drops
+  let liqScore = 0;
+  if (!Number.isFinite(vol)) liqScore = 0;
+  else if (vol >= 2_000_000) liqScore = 18;
+  else if (vol >= 500_000) liqScore = 12;
+  else if (vol >= 150_000) liqScore = 6;
+  else liqScore = -10;
+  score += liqScore;
+  parts.push({k:"Liquidity (Volume)", v: fmtNum(vol), w: liqScore});
 
-  function setLoading(sym){
-    out.innerHTML = card(`
-      <div style="font-family:var(--mono);font-size:12px;color:var(--mut)">Scanning <b class="info">${sym}</b>…</div>
-      <div class="small" style="margin-top:8px">Trying multiple feeds/proxies. If it fails you’ll see why.</div>
-    `);
+  // 3) Volatility / attention (quote-based via abs daily move)
+  let moveScore = 0;
+  if (chg !== null){
+    const a = Math.abs(chg);
+    if (a >= 0.15) moveScore = 18;
+    else if (a >= 0.08) moveScore = 10;
+    else if (a >= 0.04) moveScore = 4;
+    else moveScore = -2;
   }
+  score += moveScore;
+  parts.push({k:"Daily move (abs)", v: (chg===null?"—":pct(Math.abs(chg))), w: moveScore});
 
-  function showError(title, details){
-    out.innerHTML = card(`
-      <div style="font-weight:800;color:var(--bad);margin-bottom:6px">${title}</div>
-      <div class="errbox">${details}</div>
-      <div class="small" style="margin-top:10px">
-        Quick fixes:
-        <ul>
-          <li>Try ticker with suffix: <b>SHOP.TO</b>, <b>BHP.AX</b>, <b>SAP.DE</b>, <b>VOD.L</b></li>
-          <li>Switch Region dropdown from AUTO to the correct region</li>
-          <li>Reload with cache-bust: add <b>?v=123</b> to the URL</li>
-        </ul>
-      </div>
-    `);
-  }
+  // 4) Candle-based momentum (FULL only)
+  let momoScore = 0;
+  let squeezeScore = 0;
+  let atr = null;
+  let aboveSMA20 = null;
 
-  function buildSymbolCandidates(raw, region){
-    const sym = raw.toUpperCase().trim();
-    if(!sym) return [];
-    // If user already provided suffix (contains dot), keep it first.
-    const hasSuffix = sym.includes(".");
-    const base = sym;
+  if (!chartObj?.limited && Array.isArray(chartObj?.candles) && chartObj.candles.length >= 30){
+    const closes = chartObj.candles.map(x=>x.c);
+    const vols = chartObj.candles.map(x=>x.v);
+    const sma20 = sma(closes, 20);
+    const sma50 = sma(closes, 50);
+    const last = closes[closes.length-1];
+    aboveSMA20 = (sma20!==null) ? last > sma20 : null;
 
-    const CA = [".TO",".V",".CN"];
-    const AU = [".AX"];
-    const EU = [".L",".DE",".PA",".AS",".SW",".MI",".ST",".HE",".CO",".OL",".IR",".BR",".MC"];
+    // Momentum: last close vs SMA20 and SMA50
+    if (sma20 && sma50){
+      if (last > sma20 && sma20 > sma50) momoScore = 20;
+      else if (last > sma20) momoScore = 10;
+      else if (last > sma50) momoScore = 4;
+      else momoScore = -6;
+    }
+    score += momoScore;
+    parts.push({k:"Trend (SMA20/SMA50)", v:`last ${fmtPx(last)} | sma20 ${fmtPx(sma20)} | sma50 ${fmtPx(sma50)}`, w:momoScore});
 
-    let list = [];
-    if(hasSuffix){
-      list.push(sym);
-      // also try raw without suffix just in case
-      list.push(sym.split(".")[0]);
-      return [...new Set(list)];
+    // “Squeeze-ish”: ATR% low + rising volume today vs avg
+    atr = atrFromCandles(chartObj.candles, 14);
+    const atrPct = (atr && last) ? (atr/last) : null;
+    const avgVol20 = sma(vols, 20);
+    const vRatio = (avgVol20 && vols[vols.length-1]) ? (vols[vols.length-1]/avgVol20) : null;
+
+    if (atrPct !== null){
+      if (atrPct <= 0.03) squeezeScore += 8;     // tight
+      else if (atrPct <= 0.05) squeezeScore += 4;
+      else squeezeScore += 0;
+    }
+    if (vRatio !== null){
+      if (vRatio >= 2.0) squeezeScore += 10;
+      else if (vRatio >= 1.3) squeezeScore += 6;
+      else if (vRatio >= 1.05) squeezeScore += 2;
+      else squeezeScore -= 2;
     }
 
-    if(region === "us"){
-      list.push(base);
-    } else if(region === "ca"){
-      list.push(base, ...CA.map(s=>base+s));
-    } else if(region === "au"){
-      list.push(base, ...AU.map(s=>base+s));
-    } else if(region === "eu"){
-      list.push(base, ...EU.map(s=>base+s));
-    } else { // auto
-      // Start with US, then CA/AU/EU common suffixes
-      list.push(base);
-      list.push(...CA.map(s=>base+s));
-      list.push(...AU.map(s=>base+s));
-      list.push(...EU.map(s=>base+s));
-    }
-    return [...new Set(list)];
+    score += squeezeScore;
+    parts.push({k:"Volatility+Volume (ATR% + vRatio)", v:`ATR% ${atrPct===null?"—":pct(atrPct)} | vRatio ${vRatio===null?"—":vRatio.toFixed(2)}`, w:squeezeScore});
+  } else {
+    parts.push({k:"Trend / ATR / Volume Ratio", v:"LIMITED (no candles)", w:0});
   }
 
-  async function fetchYahooQuote(symbol){
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`;
+  // Normalize score to 0..100
+  score = Math.max(0, Math.min(100, Math.round(score)));
 
-    // Try each proxy until one returns parsable JSON with a quote.
-    let lastErr = "";
-    for(const proxy of PROXIES){
-      const proxied = proxy(url);
-      try{
-        const res = await fetch(proxied, {cache:"no-store"});
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
+  // Signal label
+  let signal = "NO TRADE";
+  if (score >= 80) signal = "A+ SETUP";
+  else if (score >= 65) signal = "WATCH";
+  else if (score >= 50) signal = "MAYBE";
+  else signal = "PASS";
 
-        // r.jina.ai returns raw content but sometimes includes extra wrapping or text.
-        // Try to find JSON boundary.
-        let jsonText = text.trim();
-        const firstBrace = jsonText.indexOf("{");
-        const lastBrace = jsonText.lastIndexOf("}");
-        if(firstBrace >= 0 && lastBrace > firstBrace){
-          jsonText = jsonText.slice(firstBrace, lastBrace+1);
-        }
+  // Rulebook plan (simple, executable)
+  const plan = makePlan({score, quote, chartObj, atr, aboveSMA20});
 
-        const data = JSON.parse(jsonText);
-        const q = data?.quoteResponse?.result?.[0];
-        if(q) return {q, via: proxied};
-        lastErr = `No quote in response via proxy: ${proxied}\nRaw head: ${text.slice(0,220)}`;
-      } catch(e){
-        lastErr = `Proxy failed: ${proxied}\n${String(e)}\n`;
+  return { score, mode, signal, parts, plan };
+}
+
+function makePlan({score, quote, chartObj, atr, aboveSMA20}){
+  const price = Number(quote?.price);
+  const prevClose = Number(quote?.previousClose);
+  const chg = (price && prevClose) ? (price/prevClose - 1) : null;
+
+  // Base risk model: 1R = stop distance
+  // FULL: stop uses ATR; LIMITED: stop uses % of price
+  const hasCandles = !chartObj?.limited && Array.isArray(chartObj?.candles) && chartObj.candles.length >= 30;
+  const stopDist = hasCandles && atr ? Math.max(atr*1.2, price*0.03) : price*0.05; // 5% if limited
+  const stop = (price && stopDist) ? (price - stopDist) : null;
+  const target1 = (price && stopDist) ? (price + stopDist*2) : null; // 2R
+  const target2 = (price && stopDist) ? (price + stopDist*3) : null; // 3R
+
+  // Entry trigger
+  // FULL: require above SMA20 (trend) + score >= 80
+  // LIMITED: require score >= 80 and day is green or strong move
+  let entryRule = "";
+  if (hasCandles){
+    entryRule = "Enter only if price is ABOVE SMA20 AND score ≥ 80. Prefer entry on a 5–15 min pullback hold (not chasing).";
+  } else {
+    entryRule = "LIMITED mode: Enter only if score ≥ 80 AND (day is green OR abs day move ≥ 8%). Avoid illiquid names.";
+  }
+
+  // Position sizing rule (simple)
+  const sizeRule =
+`Position sizing:
+- Risk per trade: 1.0% of account (max 2.0% if A+ and liquid).
+- Shares = (Account * Risk%) / (Entry - Stop).
+- Skip if stop distance implies < 0.2R wiggle (too tight) or > 10% (too wide).`;
+
+  // Exit rules
+  const exitRule =
+`Exits:
+- Hard stop at STOP.
+- Take 1/2 at 2R (TARGET1), move stop to breakeven.
+- Take rest at 3R (TARGET2) or trail below prior day low (FULL) / -5% from peak (LIMITED).`;
+
+  // Filters
+  const filters =
+`Filters (must pass):
+- Price must be $0.20–$50.
+- Avoid obvious scams: reverse splits every few months, bankruptcy, fraud allegations.
+- Avoid ultra-low volume (<150K/day) unless you accept slippage.`;
+
+  // “No trade” override
+  let verdict = "PASS";
+  if (score >= 80) verdict = "TRADE (A+)";
+  else if (score >= 65) verdict = "WATCHLIST";
+  else verdict = "PASS";
+
+  return {
+    verdict,
+    entryRule,
+    stop: stop!==null ? stop : null,
+    stopDist: stopDist!==null ? stopDist : null,
+    target1: target1!==null ? target1 : null,
+    target2: target2!==null ? target2 : null,
+    sizeRule,
+    exitRule,
+    filters,
+    chg
+  };
+}
+
+/** ===========================
+ *  RENDERING
+ *  =========================== */
+function renderAll(symbol, quote, chartObj, scored){
+  el("sym").textContent = symbol;
+
+  const modeCls = scored.mode === "FULL" ? "ok" : "warn";
+  badge(el("modeBadge"), `MODE: ${scored.mode}`, modeCls);
+
+  const s = scored.score;
+  badge(el("scoreBadge"), `SCORE: ${s}/100`, s>=80 ? "ok" : (s>=65 ? "warn" : "bad"));
+  badge(el("signalBadge"), `SIGNAL: ${scored.signal}`, s>=80 ? "ok" : (s>=65 ? "warn" : "bad"));
+
+  el("price").textContent = fmtPx(quote?.price);
+  const chg = (quote?.price && quote?.previousClose) ? (quote.price/quote.previousClose - 1) : null;
+  el("chg").textContent = chg===null ? "—" : `${pct(chg)} (${chg>0?"+":" "}${(quote.price-quote.previousClose).toFixed(2)})`;
+  el("vol").textContent = fmtNum(quote?.volume);
+  el("prev").textContent = fmtPx(quote?.previousClose);
+
+  // SCORE panel
+  const lines = scored.parts.map(p=>{
+    const sign = p.w>=0 ? "+" : "";
+    return `<div style="display:flex;justify-content:space-between;gap:10px;margin:6px 0">
+      <div style="color:var(--mut)">${escapeHtml(p.k)}</div>
+      <div class="mono" style="text-align:right">${escapeHtml(p.v)} <span style="color:${p.w>=0?'var(--green)':'var(--red)'}">(${sign}${p.w})</span></div>
+    </div>`;
+  }).join("");
+  el("panelScore").innerHTML = `
+    <div class="mono">Score is designed for quick triage, not prediction. FULL mode uses trend/ATR/volume ratio; LIMITED uses quote-only scoring.</div>
+    <div class="hr"></div>
+    ${lines}
+  `;
+
+  // SIGNALS panel
+  const signals = [];
+  if (scored.mode === "LIMITED"){
+    signals.push("LIMITED: no candles. Signals are quote-based only.");
+  } else {
+    signals.push("FULL: candles available. Trend and squeeze components active.");
+  }
+  if (quote?.price && quote?.previousClose){
+    const abs = Math.abs(quote.price/quote.previousClose - 1);
+    if (abs >= 0.15) signals.push("High attention: abs day move ≥ 15%.");
+    else if (abs >= 0.08) signals.push("Attention: abs day move ≥ 8%.");
+  }
+  if (scored.score >= 80) signals.push("A+ threshold met (score ≥ 80).");
+  else if (scored.score >= 65) signals.push("Watch threshold met (65–79).");
+  else signals.push("Below threshold: pass unless special catalyst.");
+  el("panelSignals").innerHTML = `<ul class="list">${signals.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+
+  // WT CHECK panel (simple “are you being fooled” checklist)
+  el("panelWT").innerHTML = `
+    <div class="mono">WT Check = “waste-time” filter. If any item is YES, reduce size or skip.</div>
+    <div class="hr"></div>
+    <ul class="list">
+      <li>Is volume extremely low (&lt;150K/day) for your position size? (slippage risk)</li>
+      <li>Recent reverse splits / repeated dilution?</li>
+      <li>Press-release spam with no filings?</li>
+      <li>Bankruptcy / fraud allegations / SEC warnings?</li>
+      <li>Setup relies only on hope (no clear trigger, no stop)?</li>
+    </ul>
+  `;
+
+  // PLAN panel (rulebook)
+  const p = scored.plan;
+  el("panelPlan").innerHTML = `
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+      <span class="badge">VERDICT: <b style="color:${p.verdict.includes("TRADE")?"var(--green)":p.verdict==="WATCHLIST"?"var(--amber)":"var(--red)"};margin-left:6px">${escapeHtml(p.verdict)}</b></span>
+      <span class="badge">ENTRY: <span style="margin-left:6px">${escapeHtml(p.entryRule)}</span></span>
+    </div>
+    <div class="hr"></div>
+    <div class="kv">
+      <div class="box"><div class="k">Stop</div><div class="v">${p.stop===null?"—":fmtPx(p.stop)} <span style="color:var(--mut2)">(${p.stopDist?pct(p.stopDist/Number(quote.price)):"—"} dist)</span></div></div>
+      <div class="box"><div class="k">Target 1 (2R)</div><div class="v">${p.target1===null?"—":fmtPx(p.target1)}</div></div>
+      <div class="box"><div class="k">Target 2 (3R)</div><div class="v">${p.target2===null?"—":fmtPx(p.target2)}</div></div>
+      <div class="box"><div class="k">Mode</div><div class="v">${escapeHtml(scored.mode)}</div></div>
+    </div>
+    <div class="hr"></div>
+    <div class="mono" style="white-space:pre-wrap">${escapeHtml(p.filters)}</div>
+    <div class="hr"></div>
+    <div class="mono" style="white-space:pre-wrap">${escapeHtml(p.sizeRule)}</div>
+    <div class="hr"></div>
+    <div class="mono" style="white-space:pre-wrap">${escapeHtml(p.exitRule)}</div>
+  `;
+
+  // DEBUG panel
+  el("panelDebug").innerHTML = `
+    <div class="mono">Raw debug (safe):</div>
+    <div class="hr"></div>
+    <div class="mono" style="white-space:pre-wrap">${escapeHtml(JSON.stringify({
+      symbol,
+      mode: scored.mode,
+      score: scored.score,
+      limited: chartObj?.limited,
+      candles: Array.isArray(chartObj?.candles) ? chartObj.candles.length : 0,
+      quoteKeys: quote ? Object.keys(quote) : []
+    }, null, 2))}</div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/** ===========================
+ *  MAIN SCAN FLOW
+ *  =========================== */
+async function scan(){
+  clearErr();
+  switchTab("score");
+
+  const raw = el("ticker").value;
+  const market = el("market").value;
+  const symIn = normalizeInput(raw);
+  if (!symIn) return;
+
+  const candidates = expandAuto(symIn, market);
+  setStatus(`Scanning ${symIn}...\nTrying: ${candidates.join(", ")}\n`);
+
+  // Try symbols until we get a valid QUOTE
+  let chosen = null;
+  let quote = null;
+  let lastErr = null;
+
+  for (const s of candidates){
+    try{
+      setStatus(`Trying quote: ${s} ...`);
+      quote = await apiQuote(s);
+      // basic sanity: must have price
+      if (quote && Number.isFinite(Number(quote.price))){
+        chosen = s;
+        break;
       }
+    }catch(e){
+      lastErr = e;
     }
-    throw new Error(lastErr || "All proxies failed.");
   }
 
-  function computeScore(q){
-    const price = q.regularMarketPrice;
-    const prev = q.regularMarketPreviousClose;
-    const chgPct = (price && prev) ? ((price-prev)/prev*100) : 0;
-    const vol = q.regularMarketVolume || 0;
-    const avgVol = q.averageDailyVolume3Month || q.averageDailyVolume10Day || 1;
-    const volRatio = avgVol ? (vol/avgVol) : 0;
-    const dollarVol = (price||0) * vol;
-    const mcap = q.marketCap || null;
-    const mcapB = mcap ? (mcap/1e9) : null;
-
-    // Your preferences:
-    const priceOK = price>=0.2 && price<=50;
-    const mcapOK = !mcapB || mcapB<=5; // you told me: exclude > $5B
-    // Liquidity threshold (adjustable):
-    const liquid = dollarVol >= 300000; // $300k/day minimum
-
-    // Score: 0..100
-    // This is intentionally simple + robust. We can later make it more “scientific” safely.
-    let score = 0;
-
-    // Liquidity & attention
-    if(dollarVol >= 2000000) score += 25;
-    else if(dollarVol >= 1000000) score += 20;
-    else if(dollarVol >= 300000) score += 12;
-    else score += 2;
-
-    // Volume surge
-    if(volRatio >= 5) score += 25;
-    else if(volRatio >= 3) score += 18;
-    else if(volRatio >= 2) score += 10;
-    else score += 2;
-
-    // Momentum (but penalize “too extended”)
-    if(chgPct >= 20) score += 12;
-    else if(chgPct >= 8) score += 10;
-    else if(chgPct >= 3) score += 6;
-    else if(chgPct <= -12) score -= 6;
-
-    // Constraints
-    if(priceOK) score += 10; else score -= 15;
-    if(mcapOK) score += 8; else score -= 50; // hard push-out
-
-    // Soft risk flags
-    if(!liquid) score -= 15;
-
-    // Clamp
-    score = Math.max(0, Math.min(100, Math.round(score)));
-
-    // Status
-    let status = "REJECT";
-    if(score >= 80) status = "HIGH CONVICTION";
-    else if(score >= 65) status = "WATCH";
-
-    return {score,status,chgPct,volRatio,dollarVol,priceOK,mcapOK,liquid};
+  if (!chosen){
+    showErr(`Could not fetch quote for any candidate.\nLast error: ${lastErr?.message || "unknown"}`);
+    setStatus("Failed.");
+    return;
   }
 
-  function makeRulebook(m){
-    // Very practical rules; not pretending to be “guaranteed edge”.
-    // Designed for your style (momentum + filters).
-    let entry = "AVOID";
-    let stop = "—";
-    let target = "—";
-    let notes = [];
+  setStatus(`Quote OK: ${chosen}\nFetching chart...`);
 
-    if(m.status === "HIGH CONVICTION"){
-      entry = "ONLY if price holds VWAP + breaks HOD with rising volume";
-      stop  = "Hard stop: below VWAP OR -8% from entry (whichever hits first)";
-      target= "Scale: +10% (trim), +20% (trim), runner with trailing stop";
-      notes.push("Skip if spreads are huge or prints are erratic.");
-      notes.push("No averaging down. One shot only.");
-      notes.push("Max risk per trade: 0.5–1.0% of account.");
-    } else if(m.status === "WATCH"){
-      entry = "Wait: volume ≥3× AND break of key resistance (HOD / prior day high)";
-      stop  = "Below breakout level or day low";
-      target= "+8% to +15% if tape stays strong";
-      notes.push("If volume fades, do nothing.");
-    } else {
-      notes.push("Does not meet minimum: either illiquid, wrong price band, or no real vol surge.");
-    }
-
-    // Extra hard filters (your preferences)
-    if(!m.priceOK) notes.unshift("FAIL: price not in $0.20–$50 band.");
-    if(!m.mcapOK) notes.unshift("FAIL: market cap above $5B (excluded by your rules).");
-    if(!m.liquid) notes.unshift("FAIL: liquidity too low for clean entries (DollarVol < $300k).");
-
-    return {entry,stop,target,notes};
+  // Chart is allowed to be LIMITED (no candles) without failing the scan
+  let chartObj = null;
+  try{
+    chartObj = await apiChart(chosen);
+  }catch(e){
+    // If chart endpoint fails, fallback to LIMITED mode locally
+    chartObj = { ok:true, symbol: chosen, interval:"1day", limited:true, candles:[] };
+    setStatus(`Chart failed, using LIMITED local fallback.\nReason: ${e.message}`);
   }
 
-  function render(q, meta, usedSymbol, via){
-    const price = q.regularMarketPrice;
-    const prev = q.regularMarketPreviousClose;
-    const chg = (price && prev) ? (price-prev) : null;
-    const chgPct = meta.chgPct;
+  // Score + plan
+  const scored = computeScore(quote, chartObj);
 
-    const col = meta.status==="HIGH CONVICTION" ? "ok" : meta.status==="WATCH" ? "warn" : "bad";
-    const rules = makeRulebook(meta);
+  // Render
+  renderAll(chosen, quote, chartObj, scored);
 
-    out.innerHTML = `
-      ${card(`
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-          <div>
-            <div style="font-family:var(--mono);font-size:12px;color:var(--mut)">SYMBOL</div>
-            <div style="font-size:26px;font-weight:900;letter-spacing:.04em">${usedSymbol}</div>
-            <div class="small">${(q.longName || q.shortName || "—")}</div>
-            <div style="margin-top:6px">
-              ${pill(`${meta.status}`, col)}
-              ${pill(`Score ${meta.score}/100`, col)}
-              ${pill(`${q.fullExchangeName || q.exchange || "—"}`, "info")}
-            </div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-family:var(--mono);font-size:12px;color:var(--mut)">PRICE</div>
-            <div style="font-size:22px;font-weight:900">${priceFmt(price)}</div>
-            <div style="font-family:var(--mono);font-size:12px" class="${chgPct>=0?'ok':'bad'}">
-              ${chgPct>=0?'+':''}${chgPct.toFixed(2)}% ${chg!=null?`(${chg>=0?'+':''}${chg.toFixed(2)})`:''}
-            </div>
-          </div>
-        </div>
-        <div class="hr"></div>
-        <div class="kvs">
-          <div class="lbl">Vol ratio (today vs 3mo avg)</div><div class="val">${meta.volRatio.toFixed(2)}×</div>
-          <div class="lbl">Dollar volume (approx)</div><div class="val">$${money(meta.dollarVol)}</div>
-          <div class="lbl">Volume</div><div class="val">${money(q.regularMarketVolume||0)}</div>
-          <div class="lbl">Avg vol (3mo)</div><div class="val">${money(q.averageDailyVolume3Month||0)}</div>
-          <div class="lbl">Market cap</div><div class="val">${q.marketCap?("$"+money(q.marketCap)):"N/A"}</div>
-          <div class="lbl">52w range</div><div class="val">${q.fiftyTwoWeekLow?priceFmt(q.fiftyTwoWeekLow):"N/A"} – ${q.fiftyTwoWeekHigh?priceFmt(q.fiftyTwoWeekHigh):"N/A"}</div>
-        </div>
-        <div class="small" style="margin-top:10px">
-          Data source: Yahoo quote via proxy. If values look wrong, rescan.
-        </div>
-      `)}
+  setStatus(
+    `Done.\nSymbol: ${chosen}\nMode: ${scored.mode}\nScore: ${scored.score}/100\n`
+  );
+}
 
-      ${card(`
-        <div style="font-weight:900;margin-bottom:6px">Trading Rulebook (auto-generated)</div>
-        <div class="kvs">
-          <div class="lbl">Entry</div><div class="val">${rules.entry}</div>
-          <div class="lbl">Stop</div><div class="val">${rules.stop}</div>
-          <div class="lbl">Target</div><div class="val">${rules.target}</div>
-        </div>
-        <div class="hr"></div>
-        <div class="small"><b>Hard filters:</b> Price band $0.20–$50 • Market cap ≤ $5B • DollarVol ≥ $300k</div>
-        <div style="margin-top:8px" class="small">
-          ${rules.notes.map(n=>`• ${n}`).join("<br>")}
-        </div>
-      `)}
+el("scanBtn").addEventListener("click", scan);
+el("ticker").addEventListener("keydown", (e)=>{ if (e.key==="Enter") scan(); });
 
-      ${card(`
-        <div class="small">
-          <b>Debug:</b> succeeded with <span class="info">${via.includes("allorigins")?"allorigins":via.includes("codetabs")?"codetabs":"jina"}</span><br>
-          <span class="small">(${via})</span>
-        </div>
-      `)}
-    `;
-  }
-
-  async function scan(){
-    const raw = inp.value.trim();
-    if(!raw){
-      showError("No ticker entered", "Enter something like AAPL or SHOP.TO");
-      return;
-    }
-
-    const region = regionSel.value;
-    const candidates = buildSymbolCandidates(raw, region);
-
-    setLoading(candidates[0] || raw);
-
-    let lastError = "";
-    for(const sym of candidates){
-      try{
-        const {q, via} = await fetchYahooQuote(sym);
-
-        // Validate price range existence
-        if(q.regularMarketPrice == null){
-          lastError = `No price for ${sym}.`;
-          continue;
-        }
-
-        const meta = computeScore(q);
-        render(q, meta, sym, via);
-        return;
-
-      } catch(e){
-        lastError = `Tried ${sym}\n${String(e)}\n`;
-      }
-    }
-    showError("Scan failed (all attempts)", lastError || "Unknown error");
-  }
-
-  scanBtn.addEventListener("click", scan);
-  inp.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ scan(); inp.blur(); } });
-
-})();
 </script>
 </body>
 </html>
